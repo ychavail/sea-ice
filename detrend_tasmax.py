@@ -1,19 +1,21 @@
 ##################################################################
-# Description: Code selecting all the files from the ClimEx ensemble
-# for a specific climate variable and specific months, masking the
+# Description: Code selecting all the merged (i.e. transformed) files from the
+# ClimEx ensemble for a specific climate variable and specific months, masking the
 # data over the Quebec province, detrending the climate change component
 # saving a new netcdf-file for each of the 50 ClimEx simulations.
 # Code name: detrend_tasmax.py
 # Date of creation: 2018/10/04
-# Date of last modification: 2018/10/04
+# Date of last modification: 2018/10/10
 # Contacts: chavaillaz.yann@ouranos.ca
 ##################################################################
 
 # Needed packages
 import os
-import ocgis
-from ocgis import OcgOperations, RequestDataset, env
-from ocgis.test.base import create_gridxy_global, create_exact_field
+#import ocgis
+#from ocgis import OcgOperations, RequestDataset, env
+#from ocgis.test.base import create_gridxy_global, create_exact_field
+import xarray as xr
+import numpy as np
 import functions_detrending as fct_d
 import sys
 
@@ -26,41 +28,29 @@ import sys
 simulations = ["kda"]
 var = "tasmax"
 var_nc = ["tasmax"]
-months = ("06","07","08")
+path = ('/exec/yanncha/sea_ice/'+var+'/')
 
 ### LOOP ON SIMULATIONS
 for sim in simulations:
 
-    # Selection of the paths and filenames corresponding to our criteria
-    paths = fct_d.select_months(sim, months)
-    filepaths = []
-    for p in paths:
-        month = p[-6:]
-        filepaths.append(os.path.join(p, "{0}_{1}_{2}_se.nc".format(var, sim, month)))
-    filenames   = []
-    for p in filepaths:
-        f = os.path.split(p)[-1].split('.')[0]
-        filenames.append(f)
+    # LOOP ON LITTLE SPATIAL SQUARES
+    for sq in range(16):
+        filepath = os.path.join(path, "{0}_rearranged_{1}_sq{2}.nc".format(var, sim, str(sq)))
+        dataset     = xr.open_dataset(filepath)
+        tasmax      = dataset['tasmax'][:,:,:]
+        time        = dataset['time'][:]
+        rlat        = dataset['rlat'][:]
+        rlon        = dataset['rlon'][:]
 
+        # Removing the climate change tendancy from the data
+        tasmax_d    = np.empty([len(time),len(rlat),len(rlon)])
+        for i in range(len(rlon)):
+            for j in range(len(rlat)):
+                tasmax_ij = dataset['tasmax'][:,j,i]
+                tasmax_d[:,j,i] = fct_d.cubic_detrend(tasmax_ij.values)
+                print('# i='+str(i)+' j='+str(j))
 
-    # Mask over the Quebec province
-    ## Return all time slices
-    #SNIPPET = True
-    ## Data returns won't overwrite in this case.
-    #env.OVERWRITE = False
-
-    ## where to find the shapefiles
-    #ocgis.env.DIR_GEOMCABINET = os.path.join(os.getcwd(), os.path.split(ocgis.test.__file__)[0], 'bin')
-    #ocgis.env.DIR_GEOMCABINET = os.path.join(os.getcwd(), "shapefiles")
-
-    #rds = [RequestDataset(uri=uri, variable=variable ,field_name=field_name) for uri, var, field_name in zip(filepaths, filenames, var_nc)]
-#ops = OcgOperations(dataset=rds, spatial_operation='clip', aggregate=True, snippet=SNIPPET, geom='prov_la_p_geo83_f', geom_select_uid=[1])
-#ret = ops.execute()
-
-    #assert len(ret.geoms) == 51
-
-
-    # Removing the climate change tendancy from the data
-    # initialization of the data... (netcdf or product of the mask?)
-    for p in filepaths:
-        # question: dans quel ordre faire les boucles? Demander à Philippe. Fichier, lat, lon?
+        # Storing the detrended data in a netcdf file
+        tasmax_d.to_netcdf(('/exec/yanncha/sea_ice/tasmax/tasmax_detrended_'+sim+'_sq'+str(sq)+'.nc'))
+        print('## Square '+str(sq)+' done...')
+    print('### Simulation '+sim+' done!')
