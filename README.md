@@ -3,7 +3,7 @@
 ## Étapes de travail
 --- 1. Classification des années de toutes les simulations CanESM2-LE
 K-means clustering
-utilisation d'un tampon de 10% des années pour instaurer une 'frontière' claire entre les régimes avec et sans glace de mer
+utilisation d'une 3eme classe (une sorte de zone tampon) des années pour instaurer une 'frontière' claire entre les régimes avec et sans glace de mer
 information à conserver: année, membre, classe (1, 2 ou tampon)
 
 --- 2. Construction de la correspondance avec les simulations ClimEx

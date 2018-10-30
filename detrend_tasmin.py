@@ -1,10 +1,10 @@
-##################################################################
+0##################################################################
 # Description: Code selecting all the merged (i.e. transformed) files from the
 # ClimEx ensemble for a specific climate variable and specific months, masking the
 # data over the Quebec province, detrending the climate change component
 # saving a new netcdf-file for each of the 50 ClimEx simulations.
-# Code name: detrend_tasmax.py
-# Date of creation: 2018/10/04
+# Code name: detrend_tasmin.py
+# Date of creation: 2018/10/12
 # Date of last modification: 2018/10/12
 # Contacts: chavaillaz.yann@ouranos.ca
 ##################################################################
@@ -22,13 +22,13 @@ import sys
 import time as tt
 start_time = tt.time()
 
-# Initialization
+# Initializatio
 simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk",
 "kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx",
 "kdy","kdz","kea","keb","kec","ked","kee","kef","keg","keh","kei","kej","kek",
 "kel","kem","ken","keo","kep","keq","ker","kes","ket","keu","kev","kew","kex"]
-var = "tasmax"
-var_nc = ["tasmax"]
+var = "tasmin"
+var_nc = ["tasmin"]
 path = ('/exec/yanncha/sea_ice/'+var+'/')
 
 ### LOOP ON SIMULATIONS
@@ -36,7 +36,7 @@ for sim in simulations:
 
     filepath = os.path.join(path, "{0}_rearranged_{1}.nc".format(var, sim))
     dataset     = xr.open_dataset(filepath)
-    tasmax      = dataset['tasmax'][:,:,:]
+    tasmin      = dataset['tasmin'][:,:,:]
     time        = dataset['time'][:]
     rlat        = dataset['rlat'][:]
     rlon        = dataset['rlon'][:]
@@ -44,15 +44,15 @@ for sim in simulations:
     lon         = dataset['lon'][:,:]
 
     # Removing the climate change tendancy from the data
-    tasmax_d    = np.empty([len(time),len(rlat),len(rlon)])
+    tasmin_d    = np.empty([len(time),len(rlat),len(rlon)])
     for i in range(len(rlon)):
         for j in range(len(rlat)):
-            tasmax_ij = dataset['tasmax'][:,j,i]
-            tasmax_d[:,j,i] = fct_d.cubic_detrend(tasmax_ij.values)
+            tasmin_ij = dataset['tasmin'][:,j,i]
+            tasmin_d[:,j,i] = fct_d.cubic_detrend(tasmin_ij.values)
             #print('# i='+str(i)+' j='+str(j))
 
     # Defining a new xarray
-    xr_new      = xr.Dataset({'tasmax': (['time','rlat','rlon'], tasmax_d),
+    xr_new      = xr.Dataset({'tasmin': (['time','rlat','rlon'], tasmin_d),
                               'lat': (['rlat','rlon'], lat),
                               'lon': (['rlat','rlon'], lon)},
                       coords={'time': (['time'], time),
