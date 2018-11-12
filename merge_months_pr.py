@@ -56,7 +56,9 @@ for sim in simulations:
         # extraction of subdata
         dsSub   = dataset.where((dataset.lon>=lon_min)&(dataset.lon<lon_max)&(dataset.lat>=lat_min)&(dataset.lat<lat_max),drop=True)
         print('dssub')
+        start_time = tt.time()
         dsDay   = dsSub.resample(time='24H').reduce(np.sum) # sum of hourly data to get daily data
+        end_time=tt.time()
         print('dsday')
         pr      = dsDay['pr'][:,:,:]
         print('pr')

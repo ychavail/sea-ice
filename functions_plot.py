@@ -16,36 +16,36 @@ import regionmask
 
 # sellandtime: take a time-lat-lon 3D array (var), average the array between two given timesteps (ti,tf) and apply a mask on land
 def sellandtime(var,land, ti, tf):
-	
+
 	var_tmp1			= np.nan_to_num(var)
 	var_tmp2			= np.mean(var_tmp1[ti-1:tf,:,:],0)
 	var_tmp2[np.where(land == 0.)]	= np.nan	# fill array with nan above ocean
 	var_new				= var_tmp2
-	
+
 	return var_new
 
 # sellatmean: take a time-lat-lon 3D array (var), select land or ocean or global grid cells and spatially average in a latitudinal band (li -> lf) to give a timeseries
 def sellatmean(var,land,lat,lon,opt_lo,li,lf):
-	
+
 	nlats		= np.size(lat)
 	nlons		= np.size(lon)
 	lats		= np.transpose(np.tile(lat,(nlons,1)))
 	lons		= np.tile(lon,(nlats,1))
 	latr		= np.deg2rad(lat)
 	weights 	= np.cos(latr)
-	
+
 	var_tmp		= np.nan_to_num(var)
 	for i in np.arange(0,np.size(var_tmp,0)):
 		var_tmp_y				= var_tmp[i,:,:]
 		if opt_lo == "land":
 			var_tmp_y[np.where(land == 0.)]		= np.nan	# fill array with nan above ocean
-		elif opt_lo == "ocean":		
+		elif opt_lo == "ocean":
 			var_tmp_y[np.where(land == 100.)]	= np.nan	# fill array with nan above land
 		var_tmp_y[np.where(lats < li)]		= np.nan		# fill array with nan everywhere except in the chosen latitudinal band
 		var_tmp_y[np.where(lats > lf)]		= np.nan
 		var_tmp[i,:,:]				= var_tmp_y
 
-	# spatial average weighted according to latitude array 
+	# spatial average weighted according to latitude array
 	var_mean_tmp	= np.nanmean(var_tmp,axis=2)
 	var_mean	= np.zeros(np.size(var_mean_tmp,0))
 	for i in np.arange(0,np.size(var_mean_tmp,0)):
@@ -57,24 +57,24 @@ def sellatmean(var,land,lat,lon,opt_lo,li,lf):
 
 # sellatsum: take a time-lat-lon 3D array (var), select land or ocean or global grid cells and spatially sum taking into account area of grid cells in mio of km2 in a latitudinal band (li -> lf) to give a timeseries
 def sellatsum(var,land,area,lat,lon,opt_lo,li,lf):
-	
+
 	nlats		= np.size(lat)
 	nlons		= np.size(lon)
 	lats		= np.transpose(np.tile(lat,(nlons,1)))
 	lons		= np.tile(lon,(nlats,1))
-	
+
 	var_tmp		= np.nan_to_num(var)
 	for i in np.arange(0,np.size(var_tmp,0)):
 		var_tmp_y				= var_tmp[i,:,:]
 		if opt_lo == "land":
 			var_tmp_y[np.where(land == 0.)]		= np.nan	# fill array with nan above ocean
-		elif opt_lo == "ocean":		
+		elif opt_lo == "ocean":
 			var_tmp_y[np.where(land == 100.)]	= np.nan	# fill array with nan above land
 		var_tmp_y[np.where(lats < li)]		= np.nan		# fill array with nan everywhere except in the chosen latitudinal band
 		var_tmp_y[np.where(lats > lf)]		= np.nan
 		var_tmp[i,:,:]				= var_tmp_y*area
 
-	# spatial sum 
+	# spatial sum
 	var_sum_tmp	= np.nansum(var_tmp,axis=2)
 	var_sum		= np.nansum(var_sum_tmp,axis=1)
 
@@ -83,7 +83,7 @@ def sellatsum(var,land,area,lat,lon,opt_lo,li,lf):
 
 # selsrexsum: take a time-lat-lon 3D array (var), select land or ocean or global grid cells and spatially sum taking into account area of grid cells in mio of km2 in a srex region (or aggregation of srex regions to give a timeseries
 def selsrexsum(var,land,area,lat,lon,opt_lo,srex_region):
-	
+
 	mask_SREX       = regionmask.defined_regions.srex.mask(lon, lat, xarray=False)
 
 	var_tmp		= np.nan_to_num(var)
@@ -91,7 +91,7 @@ def selsrexsum(var,land,area,lat,lon,opt_lo,srex_region):
 		var_tmp_y				= var_tmp[i,:,:]
 		if opt_lo == "land":
 			var_tmp_y[np.where(land == 0.)]		= np.nan	# fill array with nan above ocean
-		elif opt_lo == "ocean":		
+		elif opt_lo == "ocean":
 			var_tmp_y[np.where(land == 100.)]	= np.nan	# fill array with nan above land
 
 		# fill array with nan everywhere except in the chosen srex region
@@ -110,7 +110,7 @@ def selsrexsum(var,land,area,lat,lon,opt_lo,srex_region):
 
 		var_tmp[i,:,:]				= var_tmp_y*area
 
-	# spatial sum 
+	# spatial sum
 	var_sum_tmp	= np.nansum(var_tmp,axis=2)
 	var_sum		= np.nansum(var_sum_tmp,axis=1)
 
@@ -119,12 +119,12 @@ def selsrexsum(var,land,area,lat,lon,opt_lo,srex_region):
 
 # selcountrymean: take a time-lat-lon 3D array (var), select grid cells over a given country and spatially average taking into account area
 def selcountrymean(var,area,iso3,country):
-	
+
 	var_tmp			= np.nan_to_num(var)
 	for i in np.arange(0,np.size(var_tmp,0)):
 		var_tmp_y			= var_tmp[i,:,:]
 
-		# fill array with nan everywhere except in the chosen country 
+		# fill array with nan everywhere except in the chosen country
 		var_tmp_y[np.where(iso3!=country)]	= np.nan
 		var_tmp[i,:,:]				= var_tmp_y*area/np.nansum(area[np.where(iso3==country)])
 
@@ -137,7 +137,7 @@ def selcountrymean(var,area,iso3,country):
 
 # selgdpmean: take a time-lat-lon 3D array (var), select grid cells where the GDP per capita is low, low-middle, high-middle or high according to the World Bank and spatially average taking into account area
 def selgdpmean(var,area,mat_gdp,gdp_class):
-	
+
 	Nlat,Nlon				= mat_gdp.shape
 	gdp_rank				= np.zeros((Nlat,Nlon))
 	gdp_rank[np.where(mat_gdp<1005.)]	= 1.
@@ -149,7 +149,7 @@ def selgdpmean(var,area,mat_gdp,gdp_class):
 	for i in np.arange(0,np.size(var_tmp,0)):
 		var_tmp_y			= var_tmp[i,:,:]
 
-		# fill array with nan everywhere except in countries corresponding GDP class 
+		# fill array with nan everywhere except in countries corresponding GDP class
 		if gdp_class == "low":
 			var_tmp_y[np.where(gdp_rank!=1.)]	= np.nan
 			var_tmp[i,:,:]				= var_tmp_y*area/np.nansum(area[np.where(gdp_rank==1.)])
@@ -185,7 +185,7 @@ def map_contourf(fig,subplt,var,lon,lat,tit,ylab,lev,ext,colormap):
 	map.drawparallels(np.arange(-90,90,30))
 	x,y	= map(lons,lats)
 	im	= plt.contourf(np.reshape(x,[nlats,nlons]),np.reshape(y,[nlats,nlons]),var,levels=lev,extend=ext,cmap=colormap)
-	return im 
+	return im
 
 
 # map_contourf_dotted: plot a map of a lat-lon 2D array according to lat and lon (1D-arrays) and put dots where the signal is significant
@@ -204,7 +204,7 @@ def map_contourf_dotted(fig,subplt,var,sgn,lon,lat,tit,ylab,lev,lev2,ext,colorma
 	x,y	= map(lons,lats)
 	im	= plt.contourf(np.reshape(x,[nlats,nlons]),np.reshape(y,[nlats,nlons]),var,levels=lev,extend=ext,cmap=colormap)
 	plt.contourf(np.reshape(x,[nlats,nlons]),np.reshape(y,[nlats,nlons]),sgn,levels=lev2,hatches=["","."],colors='gray',alpha=0,linewidth=1)
-	return im 
+	return im
 
 
 # map_contourfNA: plot a map of a lat-lon 2D array according to lat and lon (1D-arrays) over North America
@@ -222,8 +222,22 @@ def map_contourfNA(fig,subplt,var,lon,lat,tit,ylab,lev,ext,colormap):
 	map.drawparallels(np.arange(25,85,15))
 	x,y	= map(lons,lats)
 	im	= plt.contourf(np.reshape(x,[nlats,nlons]),np.reshape(y,[nlats,nlons]),var,levels=lev,extend=ext,cmap=colormap)
-	return im 
+	return im
 
+# map_contourfQC: plot a map of a lat-lon 2D array according to lat and lon (1D-arrays) over the Quebec province
+def map_contourfQC(fig,subplt,var,lons,lats,tit,ylab,lev,ext,colormap):
+	ax	= fig.add_subplot(subplt)
+	nlats	= np.size(lats,0)
+	nlons	= np.size(lats,1)
+	ax.set_ylabel(ylab,fontsize=15)
+	ax.set_title(tit,fontsize=15)
+	map	= Basemap(projection='stere',lon_0=-70,lat_0=50,llcrnrlon=-81,llcrnrlat=44,urcrnrlon=-48,urcrnrlat=62,resolution='c')
+	map.drawcoastlines(linewidth=1)
+	map.drawmeridians(np.arange(-80,-55,5))
+	map.drawparallels(np.arange(45,65,5))
+	x,y	= map(lons,lats)
+	im	= plt.contourf(np.reshape(x,[nlats,nlons]),np.reshape(y,[nlats,nlons]),var,levels=lev,extend=ext,cmap=colormap)
+	return im
 
 # map_contourfAR: plot a map of a lat-lon 2D array according to lat and lon (1D-arrays) over the Arctic
 def map_contourfAR(fig,subplt,var,lon,lat,tit,ylab,lev,ext,colormap):
@@ -240,4 +254,4 @@ def map_contourfAR(fig,subplt,var,lon,lat,tit,ylab,lev,ext,colormap):
 	map.drawparallels(np.arange(50,90,10))
 	x,y	= map(lons,lats)
 	im	= plt.contourf(np.reshape(x,[nlats,nlons]),np.reshape(y,[nlats,nlons]),var,levels=lev,extend=ext,cmap=colormap)
-	return im 
+	return im
