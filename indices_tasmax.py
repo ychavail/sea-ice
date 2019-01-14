@@ -24,13 +24,14 @@ simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk"
 "kdy","kdz","kea","keb","kec","ked","kee","kef","keg","keh","kei","kej","kek",
 "kel","kem","ken","keo","kep","keq","ker","kes","ket","keu","kev","kew","kex"]
 path = ('/exec/yanncha/sea_ice/tasmax/')
+season = "DJFM"
 
 ### LOOP ON SIMULATIONS
 for sim in simulations:
 
     # Opening relevant datasets
-    filepath    = os.path.join(path, "tasmax_rearranged_{0}.nc".format(sim))
-    filepath_d  = os.path.join(path, "tasmax_detrended_{0}.nc".format(sim))
+    filepath    = os.path.join(path, "tasmax_rearranged_{0}_{1}.nc".format(season,sim))
+    filepath_d  = os.path.join(path, "tasmax_detrended_{0}_{1}.nc".format(season,sim))
     ds          = xr.open_dataset(filepath)     # data with trend
     ds_d        = xr.open_dataset(filepath_d)   # data detrended
     years_tmp   = np.array(ds.time.dt.year)
@@ -38,9 +39,19 @@ for sim in simulations:
 
     # Definition of indices
     # 1. maximum tasmax every summer
-    maxx            = ds_d.resample(time='YS').max(dim='time')
+    if season == "DJFM":
+        maxx            = ds_d.resample(time='AS-DEC').max(dim='time')
+    else:
+        maxx            = ds_d.resample(time='YS').max(dim='time')
     for y in years:
-        ds_dy       = ds_d.where(ds_d.time.dt.year==y,drop=True)
+        if season == "DJFM":
+            dec     = ((ds_d.time.dt.year==y-1)&(ds_d.time.dt.month==12))
+            jan     = ((ds_d.time.dt.year==y)&(ds_d.time.dt.month==1))
+            fev     = ((ds_d.time.dt.year==y)&(ds_d.time.dt.month==2))
+            mar     = ((ds_d.time.dt.year==y)&(ds_d.time.dt.month==3))
+            ds_dy   = ds_d.where(dec | jan | fev | mar,drop=True)
+        else:
+            ds_dy   = ds_d.where((ds_d.time.dt.year==y),drop=True)
         # 2. 95th percentile fo tasmax every summer
         qmax95_y    = ds_dy.quantile(0.95,dim="time")
         # 3. 99th percentile fo tasmax every summer
@@ -65,9 +76,9 @@ for sim in simulations:
     qmax99.assign_coords(time=years,dim='time')
 
     # Storing the indices in a netcdf file
-    maxx.to_netcdf(('/exec/yanncha/sea_ice/tasmax/tasmax_maxx_'+sim+'.nc'))
-    qmax95.to_netcdf(('/exec/yanncha/sea_ice/tasmax/tasmax_qmax95_'+sim+'.nc'))
-    qmax99.to_netcdf(('/exec/yanncha/sea_ice/tasmax/tasmax_qmax99_'+sim+'.nc'))
+    maxx.to_netcdf(('/exec/yanncha/sea_ice/tasmax/tasmax_maxx_'+season+'_'+sim+'.nc'))
+    qmax95.to_netcdf(('/exec/yanncha/sea_ice/tasmax/tasmax_qmax95_'+season+'_'+sim+'.nc'))
+    qmax99.to_netcdf(('/exec/yanncha/sea_ice/tasmax/tasmax_qmax99_'+season+'_'+sim+'.nc'))
 
     # Closing all datasets
     ds.close()

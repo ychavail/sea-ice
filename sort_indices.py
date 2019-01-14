@@ -1,8 +1,8 @@
 ##################################################################
-# Description:
+# Description: Works also for residuals.
 # Code name: sort_indices.py
 # Date of creation: 2018/10/24
-# Date of last modification: 2018/10/29
+# Date of last modification: 2018/11/15
 # Contacts: chavaillaz.yann@ouranos.ca
 ##################################################################
 
@@ -17,8 +17,9 @@ start_time = tt.time()
 start_time2 = tt.time()
 
 # Initialization
-clim_var    = "tasmin"
-indice      = "qmin01"
+clim_var    = "tasmax"
+indice      = "mean"
+season      = "AMJ"
 simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk",
 "kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx",
 "kdy","kdz","kea","keb","kec","ked","kee","kef","keg","keh","kei","kej","kek",
@@ -47,7 +48,7 @@ i2          = 0
 ### LOOP ON SIMULATIONS
 for sim in simulations:
     # load file with indice
-    filepath    = os.path.join(path, "{0}_{1}_{2}.nc".format(clim_var,indice,sim))
+    filepath    = os.path.join(path, "{0}_{1}_{2}_{3}.nc".format(clim_var,indice,season,sim))
     ds          = xr.open_dataset(filepath)
     years       = np.array(range(ds[clim_var].shape[0]))+1954
 
@@ -88,6 +89,7 @@ for sim in simulations:
     file_txt = open('/home/yanncha/GitHub/sea-ice/outputs_from_code/sort_indices.txt','a')
     file_txt.write(('### Simulation '+sim+' done!\n'))
     file_txt.close()
+    print('### Simulation '+sim+' done!')
 
 # Defining a new xarray
 rlat        = ds['rlat'][:]
@@ -127,6 +129,6 @@ xr_2        = xr.Dataset({indice: (['time','rlat','rlon'], indice2),
 
 
 # Storing the indices in a netcdf file
-xr_0.to_netcdf(('/exec/yanncha/sea_ice/'+clim_var+'/'+clim_var+'_'+indice+'_sorted0.nc'))
-xr_1.to_netcdf(('/exec/yanncha/sea_ice/'+clim_var+'/'+clim_var+'_'+indice+'_sorted1.nc'))
-xr_2.to_netcdf(('/exec/yanncha/sea_ice/'+clim_var+'/'+clim_var+'_'+indice+'_sorted2.nc'))
+xr_0.to_netcdf(('/exec/yanncha/sea_ice/'+clim_var+'/'+clim_var+'_'+indice+'_'+season+'_sorted0.nc'))
+xr_1.to_netcdf(('/exec/yanncha/sea_ice/'+clim_var+'/'+clim_var+'_'+indice+'_'+season+'_sorted1.nc'))
+xr_2.to_netcdf(('/exec/yanncha/sea_ice/'+clim_var+'/'+clim_var+'_'+indice+'_'+season+'_sorted2.nc'))

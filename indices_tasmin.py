@@ -2,7 +2,7 @@
 # Description:
 # Code name: indices_tasmin.py
 # Date of creation: 2018/10/23
-# Date of last modification: 2018/10/23
+# Date of last modification: 2018/11/22
 # Contacts: chavaillaz.yann@ouranos.ca
 ##################################################################
 
@@ -19,18 +19,16 @@ start_time = tt.time()
 start_time2 = tt.time()
 
 # Initialization
-simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk",
-"kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx",
-"kdy","kdz","kea","keb","kec","ked","kee","kef","keg","keh","kei","kej","kek",
-"kel","kem","ken","keo","kep","keq","ker","kes","ket","keu","kev","kew","kex"]
+simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk","kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx","kdy","kdz","kea","keb","kec","ked","kee","kef","keg","keh","kei","kej","kek","kel","kem","ken","keo","kep","keq","ker","kes","ket","keu","kev","kew","kex"]
 path = ('/exec/yanncha/sea_ice/tasmin/')
+season = "AMJ"
 
 ### LOOP ON SIMULATIONS
 for sim in simulations:
 
     # Opening relevant datasets
-    filepath    = os.path.join(path, "tasmin_rearranged_{0}.nc".format(sim))
-    filepath_d  = os.path.join(path, "tasmin_detrended_{0}.nc".format(sim))
+    filepath    = os.path.join(path, "tasmin_rearranged_{0}_{1}.nc".format(season,sim))
+    filepath_d  = os.path.join(path, "tasmin_detrended_{0}_{1}.nc".format(season,sim))
     ds          = xr.open_dataset(filepath)     # data with trend
     ds_d        = xr.open_dataset(filepath_d)   # data detrended
     years_tmp   = np.array(ds.time.dt.year) #########
@@ -38,14 +36,20 @@ for sim in simulations:
 
     # Definition of indices
     # 1. minimum tasmin every winter
-    minn            = ds_d.resample(time='AS-DEC').min(dim='time')
+    if season == "DJFM":
+        minn            = ds_d.resample(time='AS-DEC').min(dim='time')
+    else:
+        minn            = ds_d.resample(time='YS').min(dim='time')
 
     for y in years:
-        dec     = ((ds_d.time.dt.year==y-1)&(ds_d.time.dt.month==12))
-        jan     = ((ds_d.time.dt.year==y)&(ds_d.time.dt.month==1))
-        fev     = ((ds_d.time.dt.year==y)&(ds_d.time.dt.month==2))
-        mar     = ((ds_d.time.dt.year==y)&(ds_d.time.dt.month==3))
-        ds_dy       = ds_d.where(dec | jan | fev | mar,drop=True)
+        if season == "DJFM":
+            dec     = ((ds_d.time.dt.year==y-1)&(ds_d.time.dt.month==12))
+            jan     = ((ds_d.time.dt.year==y)&(ds_d.time.dt.month==1))
+            fev     = ((ds_d.time.dt.year==y)&(ds_d.time.dt.month==2))
+            mar     = ((ds_d.time.dt.year==y)&(ds_d.time.dt.month==3))
+            ds_dy   = ds_d.where(dec | jan | fev | mar,drop=True)
+        else:
+            ds_dy   = ds_d.where((ds_d.time.dt.year==y),drop=True)
 
         # 2. 5th percentile fo tasmin every winter
         qmin05_y    = ds_dy.quantile(0.05,dim="time")
@@ -71,9 +75,9 @@ for sim in simulations:
     qmin01.assign_coords(time=years,dim='time')
 
     # Storing the indices in a netcdf file
-    minn.to_netcdf(('/exec/yanncha/sea_ice/tasmin/tasmin_minn_'+sim+'.nc'))
-    qmin05.to_netcdf(('/exec/yanncha/sea_ice/tasmin/tasmin_qmin05_'+sim+'.nc'))
-    qmin01.to_netcdf(('/exec/yanncha/sea_ice/tasmin/tasmin_qmin01_'+sim+'.nc'))
+    minn.to_netcdf(('/exec/yanncha/sea_ice/tasmin/tasmin_minn_'+season+'_'+sim+'.nc'))
+    qmin05.to_netcdf(('/exec/yanncha/sea_ice/tasmin/tasmin_qmin05_'+season+'_'+sim+'.nc'))
+    qmin01.to_netcdf(('/exec/yanncha/sea_ice/tasmin/tasmin_qmin01_'+season+'_'+sim+'.nc'))
 
     # Closing all datasets
     ds.close()

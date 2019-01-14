@@ -19,11 +19,10 @@ import time as tt
 start_time = tt.time()
 
 # Initialization
-simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk",
-"kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx",
-"kdy","kdz","kea","keb","kec","ked","kee","kef","keg","keh","kei","kej","kek",
-"kel","kem","ken","keo","kep","keq","ker","kes","ket","keu","kev","kew","kex"]
-months = ("12","01","02","03")
+
+simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk","kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx","kdy","kdz","kea","keb","kec","ked","kee","kef","keg","keh","kei","kej","kek","kel","kem","ken","keo","kep","keq","ker","kes","ket","keu","kev","kew","kex"]
+months = ("04","05","06")
+season = "AMJ"
 
 ### LOOP ON CLIMEX SIMULATIONS
 for sim in simulations:
@@ -50,8 +49,11 @@ for sim in simulations:
     # extraction of subdata
     dsSub   = dataset.where((dataset.lon>=lon_min)&(dataset.lon<lon_max)&(dataset.lat>=lat_min)&(dataset.lat<lat_max),drop=True)
     tasmin  = dsSub['tasmin'][:,:,:]
-    tasmin.to_netcdf(('/exec/yanncha/sea_ice/tasmin/tasmin_rearranged_'+sim+'.nc'))
+    tasmin.to_netcdf(('/exec/yanncha/sea_ice/tasmin/tasmin_rearranged_'+season+'_'+sim+'.nc'))
     dataset.close()
     dsSub.close()
+    file_txt = open('/home/yanncha/GitHub/sea-ice/outputs_from_code/merge_months_tasmin.txt','a')
+    file_txt.write(('### Simulation '+sim+' done! (%d seconds)' % (tt.time() - start_time)))
+    file_txt.close()
     print('### Simulation '+sim+' done! (%d seconds)' % (tt.time() - start_time))
     start_time = tt.time()

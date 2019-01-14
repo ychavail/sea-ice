@@ -23,18 +23,20 @@ import time as tt
 start_time = tt.time()
 
 # Initialization
-simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk",
+# "kda","kdb","kdc","kdd","kde","kdf","kdg",
+simulations = ["kdh","kdi","kdj","kdk",
 "kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx",
 "kdy","kdz","kea","keb","kec","ked","kee","kef","keg","keh","kei","kej","kek",
 "kel","kem","ken","keo","kep","keq","ker","kes","ket","keu","kev","kew","kex"]
 var = "tasmax"
 var_nc = ["tasmax"]
+season = "DJFM"
 path = ('/exec/yanncha/sea_ice/'+var+'/')
 
 ### LOOP ON SIMULATIONS
 for sim in simulations:
 
-    filepath = os.path.join(path, "{0}_rearranged_{1}.nc".format(var, sim))
+    filepath = os.path.join(path, "{0}_rearranged_{1}_{2}.nc".format(var, season, sim))
     dataset     = xr.open_dataset(filepath)
     tasmax      = dataset['tasmax'][:,:,:]
     time        = dataset['time'][:]
@@ -60,7 +62,10 @@ for sim in simulations:
                               'rlon': (['rlon'], rlon)})
 
     # Storing the detrended data in a netcdf file
-    xr_new.to_netcdf(('/exec/yanncha/sea_ice/'+var+'/'+var+'_detrended_'+sim+'.nc'))
+    xr_new.to_netcdf(('/exec/yanncha/sea_ice/'+var+'/'+var+'_detrended_'+season+'_'+sim+'.nc'))
     dataset.close()
+    file_txt = open('/home/yanncha/GitHub/sea-ice/outputs_from_code/detrend_tasmax.txt','a')
+    file_txt.write(('### Simulation '+sim+' done! (%d seconds)' % (tt.time() - start_time)))
+    file_txt.close()
     print('### Simulation '+sim+' done! (%d seconds)' % (tt.time() - start_time))
     start_time = tt.time()
