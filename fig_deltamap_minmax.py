@@ -19,10 +19,10 @@ import time as tt
 start_time = tt.time()
 
 ## Initialization
-var         = 'tasmax'
-indice      = 'mean'
-indice_name = 'seasonal mean value'
-extrema     = 'max'
+var         = 'tasmin'
+indice      = 'qmin05'
+indice_name = 'seasonal 5th percentile'
+extrema     = 'mean'
 units       = '[K]'
 scale       = 'global'
 path        = '/exec/yanncha/sea_ice/'
@@ -70,6 +70,9 @@ for s in range(len(seasons)):
     elif extrema == 'max':
         ind0_extr   = np.nanmax(ind0_,axis=0)
         ind1_extr   = np.nanmax(ind1_,axis=0)
+    elif extrema == 'mean':
+        ind0_extr   = np.nanmean(ind0_,axis=0)
+        ind1_extr   = np.nanmean(ind1_,axis=0)
 
     ## Plotting
     if s == 0:
