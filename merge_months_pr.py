@@ -2,8 +2,8 @@
 # Description: ClimEx data is organized by months. In order to apply statistical
 # computation, data needs to be merged.
 # Code name: merge_months_pr.py
-# Date of creation: 2018/10/12
-# Date of last modification: 2018/10/12
+# Date of creation: 2019/01/14
+# Date of last modification: 2019/01/14
 # Contacts: chavaillaz.yann@ouranos.ca
 ##################################################################
 
@@ -12,6 +12,7 @@ import os
 import xarray as xr
 import numpy as np
 import sys
+import glob
 
 import functions_detrending as fct_d
 
@@ -19,54 +20,32 @@ import time as tt
 start_time = tt.time()
 
 # Initialization
-simulations = ["kda"]
-#simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk",
-#"kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx",
-#"kdy","kdz","kea","keb","kec","ked","kee","kef","keg","keh","kei","kej","kek",
-#"kel","kem","ken","keo","kep","keq","ker","kes","ket","keu","kev","kew","kex"]
-months = ("01","02","03","04","05","06","07","08","09","10","11","12") # entire year
+input_path  = '/exec/yanncha/sea_ice/pr/daily/'
+output_path = '/exec/yanncha/sea_ice/pr/'
+simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk","kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx","kdy","kdz","kea","keb","kec","ked","kee","kef","keg","keh","kei","kej","kek","kel","kem","ken","keo","kep","keq","ker","kes","ket","keu","kev","kew","kex"]
+months = (4,5,6)
+season = "AMJ"
 
 ### LOOP ON CLIMEX SIMULATIONS
 for sim in simulations:
 
-    # Selection of the paths and filenames corresponding to our criteria
-    paths = fct_d.select_months(sim, months)
-    filepaths = []
-    for p in paths:
-        month = p[-6:]
-        filepaths.append(os.path.join(p, "pr_{0}_{1}_se.nc".format(sim, month)))
-    filepaths.sort()
-    filepaths = filepaths[12:] # remove year 1954
-    filepaths_rs = np.resize(filepaths,(10,np.int(len(filepaths)/10)))
+    # selection of the filenames corresponding to our criteria
+    filepaths   = glob.glob(input_path+'pr_daily_'+sim+'*')
 
+    # initialization of the data for the selected season
+    dataset     = xr.open_mfdataset(filepaths)
+    if np.size(months)==3:
+        dsSub       = dataset.where((dataset['time.month']==months[0]) | (dataset['time.month']==months[1]) | (dataset['time.month']==months[2]),drop=True)
+    elif np.size(months)==4:
+        dsSub       = dataset.where((dataset['time.month']==months[0]) | (dataset['time.month']==months[1]) | (dataset['time.month']==months[2]) | (dataset['time.month']==months[3]),drop=True)
 
-    # Merging timesteps over a square englobing the Quebec province
-    # loop on the little square
-    lon_min     = -80.
-    lon_max     = -56.
-    lat_min     = 45.
-    lat_max     = 63.
-
-    # initialization of the data
-    #xr.set_options(enable_cftimeindex=True)
-    for i in range(10):
-        print('avant')
-        dataset     = xr.open_mfdataset(filepaths_rs[i,:],drop_variables='time_bnds')
-        print('apres')
-        # extraction of subdata
-        dsSub   = dataset.where((dataset.lon>=lon_min)&(dataset.lon<lon_max)&(dataset.lat>=lat_min)&(dataset.lat<lat_max),drop=True)
-        print('dssub')
-        start_time = tt.time()
-        dsDay   = dsSub.resample(time='24H').reduce(np.sum) # sum of hourly data to get daily data
-        end_time=tt.time()
-        print('dsday')
-        pr      = dsDay['pr'][:,:,:]
-        print('pr')
-        pr.to_netcdf(('/exec/yanncha/sea_ice/pr/pr_rearranged_'+sim+'_'+str(i+1)+'.nc'))
-        print('netcdf')
-        dataset.close()
-        dsSub.close()
-        dsDay.close()
-        print('# Part '+str(i+1)+' done!')
+    # writing data in a new netcdf file
+    pr  = dsSub['pr'][:,:,:]
+    pr.to_netcdf((output_path+'/pr_rearranged_'+season+'_'+sim+'.nc'))
+    dataset.close()
+    dsSub.close()
+    file_txt = open('/home/yanncha/GitHub/sea-ice/outputs_from_code/merge_months_pr.txt','a')
+    file_txt.write(('### Simulation '+sim+' done! (%d seconds)' % (tt.time() - start_time)))
+    file_txt.close()
     print('### Simulation '+sim+' done! (%d seconds)' % (tt.time() - start_time))
     start_time = tt.time()

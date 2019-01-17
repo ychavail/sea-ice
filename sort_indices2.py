@@ -18,7 +18,7 @@ start_time2 = tt.time()
 
 # Initialization
 clim_var    = "tasmin"
-indice      = "minn"
+indice      = "qmin01"
 season      = "SON"
 simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk",
 "kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx",
