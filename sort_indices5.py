@@ -17,8 +17,8 @@ start_time = tt.time()
 start_time2 = tt.time()
 
 # Initialization
-clim_var    = "tasmin"
-indice      = "std"
+clim_var    = "pr"
+indice      = "sumrel"
 season      = "SON"
 simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk",
 "kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx",
@@ -97,8 +97,8 @@ for sim in simulations:
 # Defining a new xarray
 rlat        = ds['rlat'][:]
 rlon        = ds['rlon'][:]
-lat         = ds['lat'][0,:,:]
-lon         = ds['lon'][0,:,:]
+lat         = ds['lat'][:,:]
+lon         = ds['lon'][:,:]
 time0       = list(range(len(years0)))
 time1       = list(range(len(years1)))
 time2       = list(range(len(years2)))
@@ -132,6 +132,7 @@ xr_2        = xr.Dataset({indice: (['time','rlat','rlon'], indice2),
 
 
 # Storing the indices in a netcdf file
+sys.exit()
 xr_0.to_netcdf(('/exec/yanncha/sea_ice/'+clim_var+'/'+clim_var+'_'+indice+'_'+season+'_sorted0.nc'))
 xr_1.to_netcdf(('/exec/yanncha/sea_ice/'+clim_var+'/'+clim_var+'_'+indice+'_'+season+'_sorted1.nc'))
 xr_2.to_netcdf(('/exec/yanncha/sea_ice/'+clim_var+'/'+clim_var+'_'+indice+'_'+season+'_sorted2.nc'))

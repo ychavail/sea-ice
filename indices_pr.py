@@ -71,8 +71,8 @@ for sim in simulations:
     max5j.assign_coords(time=years,dim='time')
 
     # Storing the indices in a netcdf file
-    max1j.to_netcdf(('/exec/yanncha/sea_ice/tasmax/tasmax_max1j_'+season+'_'+sim+'.nc'))
-    max5j.to_netcdf(('/exec/yanncha/sea_ice/tasmax/tasmax_max5j_'+season+'_'+sim+'.nc'))
+    max1j.to_netcdf(('/exec/yanncha/sea_ice/pr/pr_max1j_'+season+'_'+sim+'.nc'))
+    max5j.to_netcdf(('/exec/yanncha/sea_ice/pr/pr_max5j_'+season+'_'+sim+'.nc'))
 
     # Closing all datasets
     ds.close()

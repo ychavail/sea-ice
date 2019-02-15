@@ -22,10 +22,11 @@ ACHEVÉ
 - avec tasmin et tasmax: mean, std
 - avec tasmax seulement: 95e, 99e percentiles et maximum annuel (qmax95, qmax99, maxx)
 - avec tasmin seulement: 5e, 1er percentile et minimum annuel (qmin05, qmin01, minn)
-- avec pr (séries journalières OBTENUES via un code Julia) À FAIRE
+- avec pr (séries journalières OBTENUES via un code Julia)
+- avec prsn (régler le souci de l'axe des temps)
 
 ## 5. Études régionaux (par régions administratives)
-- travail sur les fichiers finaux
+- travail sur les fichiers finaux, masque avec Julia
 
 
 ## Construction des figures

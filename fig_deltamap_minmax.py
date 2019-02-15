@@ -19,19 +19,19 @@ import time as tt
 start_time = tt.time()
 
 ## Initialization
-var         = 'tasmin'
-indice      = 'qmin05'
-indice_name = 'seasonal 5th percentile'
+var         = 'pr'
+indice      = 'max1j'
+indice_name = 'seasonal daily maximum'
 extrema     = 'mean'
-units       = '[K]'
+units       = '[%]'
 scale       = 'global'
 path        = '/exec/yanncha/sea_ice/'
 seasons     = ['SON','DJFM','AMJ']
 subplots    = [131,132,133]
 infinity	= 'both'
 palette		= plt.cm.seismic
-levels		= [-4,-3,-2,-1,0,1,2,3,4]
-# pour mean: [-4,-3,-2,-1,0,1,2,3,4]
+levels		= [-10,-8,-7,-6,-5,-4,0,4,5,6,7,8,10]
+# pour tasmin, tasmax, mean: [-4,-3,-2,-1,0,1,2,3,4]
 
 
 ## Creating a mask on land
@@ -54,14 +54,18 @@ for s in range(len(seasons)):
     file1       = path+var+'/'+var+'_'+indice+'_'+seasons[s]+'_sorted1.nc'
     nc0         = netcdf.Dataset(file0,'r')
     nc1         = netcdf.Dataset(file1,'r')
-    ind0_       = nc0.variables[indice][:,:,:].data
-    ind1_       = nc1.variables[indice][:,:,:].data
-    land_mask	= np.zeros(ind0_.shape, dtype=bool)
-    land_mask[:,:,:] 	= sftlf[np.newaxis,:,:] < 0.1
-    ind0_        = np.ma.array(ind0_,mask=land_mask)
-    land_mask	= np.zeros(ind1_.shape, dtype=bool)
-    land_mask[:,:,:] 	= sftlf[np.newaxis,:,:] < 0.1
-    ind1_        = np.ma.array(ind1_,mask=land_mask)
+    if var != 'pr':
+        ind0_       = nc0.variables[indice][:,:,:].data
+        ind1_       = nc1.variables[indice][:,:,:].data
+        land_mask	= np.zeros(ind0_.shape, dtype=bool)
+        land_mask[:,:,:] 	= sftlf[np.newaxis,:,:] < 0.1
+        ind0_        = np.ma.array(ind0_,mask=land_mask)
+        land_mask	= np.zeros(ind1_.shape, dtype=bool)
+        land_mask[:,:,:] 	= sftlf[np.newaxis,:,:] < 0.1
+        ind1_        = np.ma.array(ind1_,mask=land_mask)
+    else:
+        ind0_       = 3600*nc0.variables[indice][:,:,:].data
+        ind1_       = 3600*nc1.variables[indice][:,:,:].data
     lons        = nc1.variables['lon'][:,:]
     lats        = nc1.variables['lat'][:,:]
     if extrema == 'min':
