@@ -10,9 +10,9 @@ shpfile = "/home/yanncha/GitHub/sea-ice/masking/admin_QC.shp"
 polyshp = read(shpfile,Shapefile.Handle)
 
 # definition of regions to focus on with shapefiles
-regions_name    = ["Montreal","Monteregie","Estrie"]
-regions_code    = ["MTL","MTR","EST"]
-regions_number  = [18,16,17]
+regions_name    = ["Montreal","Nord du Quebec","Gaspesie"]
+regions_code    = ["MTL","NDQ","GAS"]
+regions_number  = [18,20,6]
 
 # variables to zoom in
 path    = "/exec/yanncha/sea_ice/"

@@ -18,23 +18,23 @@ import time as tt
 start_time = tt.time()
 
 ## Initialization
-var         = 'tasmin'
-indice      = 'mean'
-indice_name = 'seasonal mean value'
-units       = 'T [K]'
-scale       = 'MTL'
+var         = 'pr'
+indice      = 'max1j'
+indice_name = 'seasonal maximum daily precipitation'
+units       = 'pr [mm/d]'
+scale       = 'NDQ'
 path        = '/exec/yanncha/sea_ice/'
 seasons     = ['SON','DJFM','AMJ']
 subplots    = [231,232,233,234,235,236]
 colors      = ['r','#000090','#8A0808']
 labels      = ['no ice','ice','unclear']
 percs       = np.array([0.1,1,2,3,4,5,10,20,30,40,50,60,70,80,90,95,96,97,98,99,99.9])
-plt_bnds    = [-10,10,0,0.6]
+plt_bnds    = [0,150,0,0.06]
 # MTL tasmax mean [-6,6,0,0.4]
 # MTL tasmax maxx [0,30,0,0.18]
 # MTL tasmax qmax99 [0,30,0,0.20]
 # MTL tasmax qmax95 [0,25,0,0.25]
-qq_bnds     = [-8,8,-8,8]
+qq_bnds     = [0,140,0,140]
 # MTL tasmax mean [-6,6,-6,6]
 # MTL tasmax maxx [5,30,5,30]
 # MTL tasmax qmax99 [5,30,5,30]
@@ -54,7 +54,13 @@ for s in range(len(seasons)):
         file        = path+var+'/'+var+'_'+indice+'_'+seasons[s]+'_sorted'+str(c)+'_'+scale+'.nc'
         nc          = netcdf.Dataset(file,'r')
         ind_        = nc.variables[indice][:,:,:].data
-        ind         = ind_[~np.isnan(ind_)]
+        if var != 'pr':
+            land_mask	= np.zeros(ind_.shape, dtype=bool)
+            land_mask[:,:,:] 	= sftlf[np.newaxis,:,:] < 0.1
+            ind_        = np.ma.array(ind_,mask=land_mask)
+            ind         = ind_[~np.isnan(ind_)]
+        else:
+            ind         = 3600*ind_[~np.isnan(ind_)]
 
         ## Plotting
         if s == 0:
@@ -79,14 +85,27 @@ for s in range(len(seasons)):
     ax = fig1.add_subplot(subplots[s+3])
 
     ## Loading files
-    file0       = path+var+'/'+var+'_'+indice+'_'+seasons[s]+'_sorted0_'+scale+'.nc'
+    file0       = path+var+'/'+var+'_'+indice+'_'+seasons[s]+'_sorted0'+'_'+scale+'.nc'
     nc0         = netcdf.Dataset(file0,'r')
     ind0_       = nc0.variables[indice][:,:,:].data
-    ind0        = ind0_[~np.isnan(ind0_)]
-    file1       = path+var+'/'+var+'_'+indice+'_'+seasons[s]+'_sorted1_'+scale+'.nc'
+    if var != 'pr':
+        ind0_       = nc0.variables[indice][:,:,:].data
+        land_mask	= np.zeros(ind0_.shape, dtype=bool)
+        land_mask[:,:,:] 	= sftlf[np.newaxis,:,:] < 0.1
+        ind0        = ind0_[~np.isnan(ind0_)]
+    else:
+        ind0        = 3600*ind0_[~np.isnan(ind0_)]
+
+    file1       = path+var+'/'+var+'_'+indice+'_'+seasons[s]+'_sorted1'+'_'+scale+'.nc'
     nc1         = netcdf.Dataset(file1,'r')
     ind1_       = nc1.variables[indice][:,:,:].data
-    ind1        = ind1_[~np.isnan(ind1_)]
+    if var != 'pr':
+        land_mask	= np.zeros(ind1_.shape, dtype=bool)
+        land_mask[:,:,:] 	= sftlf[np.newaxis,:,:] < 0.1
+        ind1_       = np.ma.array(ind1_,mask=land_mask)
+        ind1        = ind1_[~np.isnan(ind1_)]
+    else:
+        ind1        = 3600*ind1_[~np.isnan(ind1_)]
 
     ## Plotting
     qn0     = np.percentile(ind0, percs)

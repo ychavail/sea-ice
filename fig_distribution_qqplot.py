@@ -122,7 +122,7 @@ for s in range(len(seasons)):
         land_mask[:,:,:] 	= sftlf[np.newaxis,:,:] < 0.1
         ind0        = ind0_[~np.isnan(ind0_)]
     else:
-        ind0        = 100*ind0_[~np.isnan(ind0_)]
+        ind0        = 3600*ind0_[~np.isnan(ind0_)]
 
     file1       = path+var+'/'+var+'_'+indice+'_'+seasons[s]+'_sorted1.nc'
     nc1         = netcdf.Dataset(file1,'r')
@@ -133,7 +133,7 @@ for s in range(len(seasons)):
         ind1_       = np.ma.array(ind1_,mask=land_mask)
         ind1        = ind1_[~np.isnan(ind1_)]
     else:
-        ind1        = 100*ind1_[~np.isnan(ind1_)]
+        ind1        = 3600*ind1_[~np.isnan(ind1_)]
 
 
     ## Plotting
