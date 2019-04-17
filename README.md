@@ -57,20 +57,20 @@ shapefile: ./masking/admin_QC.[extension]
 need to specify: regions_name, regions_code, regions_number
 
 ## 8. Plotting of figures
-# a. Maps of difference between two clusters for three seasons
+### a. Maps of difference between two clusters for three seasons
 code: ./fig_deltamap_minmax.py
 need to specify: var, indice, indice_name, extrema (min, max, mean of the distribution) and units (of the indice)
-# b. PDF and qq-plot of different clusters for three seasons in Quebec
+### b. PDF and qq-plot of different clusters for three seasons in Quebec
 code: ./fig_distribution_qqplot.py
 need to specify: var, indice, indice_name and units (of the indice)
-# c. PDF and qq-plot of different clusters for three seasons in specific administrative regions of Quebec
+### c. PDF and qq-plot of different clusters for three seasons in specific administrative regions of Quebec
 code: ./fig_distribution_qqplot_regional.py
 need to specify: var, indice, indice_name, units (of the indice) and scale (specific region defined in step 7)
 
 ### STILL TO BE DONE ###
 Steps 6, 7 and 8 for prsn.
 
-## Construction des figures
+### Construction des figures
 - distributions globales
 - quantile-quantile des distributions
 - différence entre max(C1) et max(C2) en cartes
