@@ -67,10 +67,5 @@ need to specify: var, indice, indice_name and units (of the indice)
 code: ./fig_distribution_qqplot_regional.py
 need to specify: var, indice, indice_name, units (of the indice) and scale (specific region defined in step 7)
 
-### STILL TO BE DONE ###
+## STILL TO BE DONE 
 Steps 6, 7 and 8 for prsn.
-
-### Construction des figures
-- distributions globales
-- quantile-quantile des distributions
-- différence entre max(C1) et max(C2) en cartes
