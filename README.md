@@ -1,8 +1,8 @@
 ## PROJECT: Does the absence of sea ice in the Arctic have an influence on the occurrence of extreme events over the Eastern part of Canada?
-SIMULATIONS: CanESM2-LE and ClimEx
-LANGUAGES: Python, Julia
-CONTACT: yann.chavaillaz@gmail.com
-DATE: 16th April 2019
+ SIMULATIONS: CanESM2-LE and ClimEx\\
+LANGUAGES: Python, Julia\\
+CONTACT: yann.chavaillaz@gmail.com\\
+DATE: 16th April 2019\\
 
 ## KEY STEPS
 1. Clustering of years in the CanESM2-LE
