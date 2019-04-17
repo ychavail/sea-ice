@@ -1,8 +1,8 @@
-### PROJECT: Does the absence of sea ice in the Arctic have an influence on the occurrence of extreme events over the Eastern part of Canada?
-### SIMULATIONS: CanESM2-LE and ClimEx
-### LANGUAGES: Python, Julia
-### CONTACT: yann.chavaillaz@gmail.com
-### DATE: 16th April 2019
+## PROJECT: Does the absence of sea ice in the Arctic have an influence on the occurrence of extreme events over the Eastern part of Canada?
+SIMULATIONS: CanESM2-LE and ClimEx
+LANGUAGES: Python, Julia
+CONTACT: yann.chavaillaz@gmail.com
+DATE: 16th April 2019
 
 ## KEY STEPS
 1. Clustering of years in the CanESM2-LE
@@ -67,5 +67,5 @@ need to specify: var, indice, indice_name and units (of the indice)
 code: ./fig_distribution_qqplot_regional.py
 need to specify: var, indice, indice_name, units (of the indice) and scale (specific region defined in step 7)
 
-## STILL TO BE DONE 
+## STILL TO BE DONE
 Steps 6, 7 and 8 for prsn.
