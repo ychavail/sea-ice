@@ -99,25 +99,3 @@ for r = 1:length(regions_name)
         end
     end
 end
-
-# function extract_private(filein, ivar)
-#
-#     data = ncread(filein, ivar)
-#     rlon = ncread(filein, "rlon")
-#     rlat = ncread(filein, "rlat")
-#     timev = ncread(filein, "time")
-#     longrid = ncread(filein, "lon")
-#     latgrid = ncread(filein, "lat")
-#
-#     dimension_dict = Dict(["lon" => "rlon", "lat" => "rlat"])
-#
-#     grid_mapping = Dict(["grid_mapping" => "rotated_pole"])
-#
-#     varattribs = Dict(["grid_mapping" => "rotated_pole"])
-#
-#     dataax = AxisArray(data, Axis{Symbol(:rlon)}(rlon), Axis{Symbol(:rlat)}(rlat), Axis{:time}(timev))
-#
-#     return ClimGrid(dataax, variable=ivar, longrid=longrid, latgrid=latgrid, dimension_dict=dimension_dict, grid_mapping=grid_mapping)
-#
-#
-# end

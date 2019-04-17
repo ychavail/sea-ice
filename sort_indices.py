@@ -17,9 +17,9 @@ start_time = tt.time()
 start_time2 = tt.time()
 
 # Initialization
-clim_var    = "pr"
+clim_var    = "prsn"
 indice      = "max1j"
-season      = "AMJ"
+season      = "SON"
 simulations = ["kda","kdb","kdc","kdd","kde","kdf","kdg","kdh","kdi","kdj","kdk",
 "kdl","kdm","kdn","kdo","kdp","kdq","kdr","kds","kdt","kdu","kdv","kdw","kdx",
 "kdy","kdz","kea","keb","kec","ked","kee","kef","keg","keh","kei","kej","kek",

@@ -1,33 +1,74 @@
-### sea-ice project ###
+### PROJECT: Does the absence of sea ice in the Arctic have an influence on the occurrence of extreme events over the Eastern part of Canada?
+### SIMULATIONS: CanESM2-LE and ClimEx
+### LANGUAGES: Python, Julia
+### CONTACT: yann.chavaillaz@gmail.com
+### DATE: 16th April 2019
 
-## 1. Classification des années de toutes les simulations CanESM2-LE
-K-means clustering
-données de bases sie (en %) après une transformation logarithmique
-utilisation d'une 3eme classe (une sorte de zone tampon) des années pour instaurer une 'frontière' claire entre les régimes avec et sans glace de mer
-information à conserver: année, membre, classe (1, 2 ou tampon)
-résultats du clustering: pas de glace -> 0 - 110'000'000, tampon -> 26'000'000 - 318'000'000, glace -> 185'000'000 - 534'000'000
-ACHEVÉ
+## KEY STEPS
+1. Clustering of years in the CanESM2-LE
+2. Correspondence between CanESM2-LE and ClimEx simulations
+3. Merging of the ClimEx files for one simulation and one season
+4. Removal of the climate change trend in ClimEx simulations
+5. Computation of seasonal and extreme indicators
+6. Sorting of years into clusters
+7. Mask of specific regions
+8. Plotting of figures
 
-## 2. Construction de la correspondance avec les simulations ClimEx
-reprendre l'information conservée et ajouter une colonne avec le nom de la simulation ClimEx
-ACHEVÉ
+Intermediate and final data, plus figures can be found on Neree in /exec/yanncha/sea_ice/.
+Functions are defined in files ./functions_***.py
+Climate variables: tasmin, tasmax, pr, prsn
 
-## 3. Detrend des simulations
-appliquer le polygone québécois sur les jeux de données
-detrender avec un polynôme d'ordre 4 pour chaque point de grille
-ACHEVÉ
+## 1. Clustering of years in the CanESM2-LE
+code: ./clustering/*
+method: K-means clustering
+input data: sea ice extent (sie - %) with a logarithmic transformation
+3 clusters: no ice, ice, unclear
+The temporal distribution of clusters can be represented in a histogram by the code ./histogram_clusters.py
+The preparation of raw sie data to do the clustering is done with ./prepare_sic_september_forML.py
 
-## 4. Calcul des indicateurs sur les simulations ClimEx
-- 3 saisons: SON, DJFM, AMJ
-- avec tasmin et tasmax: mean, std
-- avec tasmax seulement: 95e, 99e percentiles et maximum annuel (qmax95, qmax99, maxx)
-- avec tasmin seulement: 5e, 1er percentile et minimum annuel (qmin05, qmin01, minn)
-- avec pr (séries journalières OBTENUES via un code Julia)
-- avec prsn (régler le souci de l'axe des temps)
+## 2. Correspondence between CanESM2-LE and ClimEx simulations
+file of correspondance: /exec/yanncha/sea_ice/clusters/sic_september_clusters_kmeans_CanESM2-LE.npy
 
-## 5. Études régionaux (par régions administratives)
-- travail sur les fichiers finaux, masque avec Julia
+## 3. Merging of the ClimEx files for one simulation and one season
+code: ./merge_months_[variable].py
+need to specify: months and season (SON, DJFM, AMJ)
+especially for pr: only hourly data is available. So first, transform hourly data to daily data with ./pr_hourlytodaily.py
 
+## 4. Removal of the climate change trend in ClimEx simulations
+code: ./detrend_[variable].py
+need to specify: season
+method: cubic polynomial fit
+
+## 5. Computation of seasonal and extreme indicators
+code: ./indices_[variable].py and ./residuals_[variable].py
+need to specify: season
+indicators for tasmin: minimum temperature of the season, 1st percentile, 5th percentile, seasonal average and season standard deviation
+indicators for tasmax: maximum temperature of the season, 99th percentile, 95th percentile, seasonal average and season standard deviation
+indicators for pr and prsn: daily maximum precipitation, 5-day maximum precipitation, seasonal average, seasonal standard deviation, relative sum of precipitation over the season
+
+## 6. Sorting of years into clusters
+code: ./sort_indices.py
+need to specify: clim_var, indice, season
+use of the correspondence of clusters between CanESM2-LE and ClimEx of step 2
+
+## 7. Mask of specific regions
+code: ./mask_adminQC.jl
+shapefile: ./masking/admin_QC.[extension]
+need to specify: regions_name, regions_code, regions_number
+
+## 8. Plotting of figures
+# a. Maps of difference between two clusters for three seasons
+code: ./fig_deltamap_minmax.py
+need to specify: var, indice, indice_name, extrema (min, max, mean of the distribution) and units (of the indice)
+# b. PDF and qq-plot of different clusters for three seasons in Quebec
+code: ./fig_distribution_qqplot.py
+need to specify: var, indice, indice_name and units (of the indice)
+# c. PDF and qq-plot of different clusters for three seasons in specific administrative regions of Quebec
+code: ./fig_distribution_qqplot_regional.py
+need to specify: var, indice, indice_name, units (of the indice) and scale (specific region defined in step 7)
+
+### STILL TO BE DONE ###
+Steps 6, 7 and 8 for prsn.
 
 ## Construction des figures
 - distributions globales
